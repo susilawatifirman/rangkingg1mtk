@@ -1,0 +1,983 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#FFF6DD">
+<title>Rangking 1: Arena Matematika</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #FFF6DD;
+    --panel: #FFFDF6;
+    --panel-light: #FFEFC2;
+    --line: #E8D6A0;
+    --gold: #C9860F;
+    --teal: #1E8F82;
+    --green: #2E8B52;
+    --red: #C6402F;
+    --text: #2B2013;
+    --muted: #7C6B49;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  html,body{ height:100%; overflow:hidden; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    height: 100vh;
+    height: 100dvh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  /* ---------- Bingkai 9:16, layar penuh di semua HP (Android & iPhone) tanpa scroll body ---------- */
+  .viewport-frame{
+    position:relative;
+    background: radial-gradient(1200px 600px at 50% -10%, #FFFDF3 0%, var(--bg) 55%);
+    width: min(100vw, calc((100vh) * 9 / 16));
+    width: min(100vw, calc((100dvh) * 9 / 16));
+    height: min(100vh, calc(100vw * 16 / 9));
+    height: min(100dvh, calc(100vw * 16 / 9));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    padding: max(env(safe-area-inset-top), 10px) max(env(safe-area-inset-right), 10px) max(env(safe-area-inset-bottom), 10px) max(env(safe-area-inset-left), 10px);
+  }
+  .stage{
+    width:100%;
+    height:100%;
+    max-width: 520px;
+    max-height: 100%;
+    overflow-y:auto;
+    -webkit-overflow-scrolling: touch;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+  .stage::-webkit-scrollbar{ width:6px; }
+  .stage::-webkit-scrollbar-thumb{ background: var(--line); border-radius:4px; }
+
+  /* ---------- Ajakan putar ke mode potret (jika HP dalam mode lanskap) ---------- */
+  .rotate-overlay{
+    display:none;
+    position:fixed; inset:0;
+    background: var(--bg);
+    color: var(--text);
+    z-index: 999;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding: 32px;
+    font-family:'Inter', sans-serif;
+  }
+  .rotate-overlay .icon{ font-size:44px; margin-bottom:16px; }
+  .rotate-overlay h2{ font-size:20px; margin-bottom:8px; }
+  .rotate-overlay p{ color: var(--muted); font-size:14px; max-width:34ch; margin:0; }
+  @media (orientation: landscape) and (max-height: 520px){
+    .rotate-overlay{ display:flex; }
+    .viewport-frame{ display:none; }
+  }
+  .fs-hint{
+    text-align:center;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 10px;
+    line-height:1.5;
+  }
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; margin:0; }
+  .num{ font-family:'Space Grotesk', sans-serif; font-variant-numeric: tabular-nums; }
+  button{ font-family:'Inter', sans-serif; cursor:pointer; }
+  ::selection{ background: var(--gold); color:#FFFBEF; }
+
+  /* ---------- Layout kartu umum ---------- */
+  .panel{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 32px;
+  }
+
+  /* ---------- Start screen ---------- */
+  .start-eyebrow{
+    color: var(--gold);
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    margin-bottom: 10px;
+  }
+  .start-title{
+    font-size: clamp(28px, 5vw, 40px);
+    line-height:1.15;
+    margin-bottom: 14px;
+  }
+  .start-desc{
+    color: var(--muted);
+    font-size: 15px;
+    line-height:1.6;
+    margin-bottom: 26px;
+    max-width: 56ch;
+  }
+  .rule-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow:hidden;
+    margin-bottom: 28px;
+  }
+  .rule-cell{
+    background: var(--panel-light);
+    padding: 16px 14px;
+  }
+  .rule-cell .num{ font-size: 22px; color: var(--gold); display:block; }
+  .rule-cell .lbl{ font-size: 12.5px; color: var(--muted); margin-top:4px; }
+  .field-label{ font-size: 13px; color: var(--muted); margin-bottom: 8px; display:block; }
+  input[type="text"]{
+    width:100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-size: 16px;
+    padding: 13px 14px;
+    border-radius: 7px;
+    outline:none;
+    font-family:'Inter', sans-serif;
+  }
+  input[type="text"]:focus{ border-color: var(--gold); }
+  .btn-primary{
+    margin-top: 22px;
+    width:100%;
+    background: var(--gold);
+    color: #FFFBEF;
+    border:none;
+    font-weight:600;
+    font-size: 16px;
+    padding: 15px;
+    border-radius: 7px;
+    transition: transform .12s ease, background .12s ease;
+  }
+  .btn-primary:hover{ background:#B8790C; }
+  .btn-primary:active{ transform: scale(0.99); }
+  .btn-primary:disabled{ opacity:.4; cursor:not-allowed; }
+  .btn-secondary{
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--line);
+    font-weight:600;
+    font-size: 15px;
+    padding: 13px 18px;
+    border-radius: 7px;
+  }
+  .btn-secondary:hover{ border-color: var(--gold); color: var(--gold); }
+
+  /* ---------- Track soal (dot) ---------- */
+  .track{
+    display:flex;
+    gap: 4px;
+    margin-bottom: 18px;
+    flex-wrap:wrap;
+  }
+  .track i{
+    width: 14px; height: 6px;
+    border-radius: 2px;
+    background: var(--line);
+    display:block;
+  }
+  .track i.done-correct{ background: var(--green); }
+  .track i.done-wrong{ background: var(--red); }
+  .track i.current{ background: var(--gold); }
+
+  /* ---------- Quiz header ---------- */
+  .quiz-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom: 14px;
+  }
+  .quiz-meta .peserta{ color: var(--muted); font-size: 13px; }
+  .quiz-meta .posisi{ font-size: 20px; margin-top: 2px; }
+  .score-box{ text-align:right; }
+  .score-box .num{ font-size: 22px; color: var(--gold); }
+  .score-box .lbl{ font-size: 12px; color: var(--muted); }
+  .badge{
+    display:inline-block;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 5px;
+    margin-bottom: 14px;
+    border: 1px solid;
+  }
+  .badge.logika{ color: var(--teal); border-color: var(--teal); background: rgba(30,143,130,0.10); }
+  .badge.aplikasi{ color: var(--gold); border-color: var(--gold); background: rgba(201,134,15,0.10); }
+
+  /* ---------- Timer ring ---------- */
+  .timer-wrap{
+    display:flex;
+    justify-content:center;
+    margin-bottom: 20px;
+  }
+  .timer-ring{ position:relative; width:92px; height:92px; }
+  .timer-ring svg{ transform: rotate(-90deg); }
+  .timer-ring circle{ fill:none; stroke-width: 7; }
+  .timer-ring .bg{ stroke: var(--line); }
+  .timer-ring .fg{ stroke: var(--green); stroke-linecap: round; transition: stroke-dashoffset .18s linear, stroke .3s ease; }
+  .timer-num{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 26px; font-weight:600;
+  }
+  .timer-ring.warn .fg{ stroke: var(--gold); }
+  .timer-ring.danger .fg{ stroke: var(--red); }
+  .timer-ring.danger .timer-num{ animation: pulse .5s infinite; }
+  @keyframes pulse{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.12);} }
+
+  .soal-text{ font-size: 19px; line-height:1.55; margin-bottom: 22px; }
+
+  .opsi-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width:520px){ .opsi-grid{ grid-template-columns: 1fr; } }
+  .opsi-btn{
+    text-align:left;
+    background: var(--panel-light);
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color .12s ease, background .12s ease;
+  }
+  .opsi-btn:hover:not(:disabled){ border-color: var(--gold); }
+  .opsi-btn:disabled{ cursor:default; }
+  .opsi-btn.pilih-benar{ border-color: var(--green); background: rgba(46,139,82,0.14); }
+  .opsi-btn.pilih-salah{ border-color: var(--red); background: rgba(198,64,47,0.14); }
+  .opsi-btn.kunci-terlewat{ border-color: var(--green); }
+
+  .isian-row{ display:flex; gap:10px; }
+  .isian-row input{ flex:1; }
+  .isian-row button{
+    background: var(--gold); color:#FFFBEF; border:none; font-weight:600;
+    padding: 0 22px; border-radius:7px; font-size:15px;
+  }
+  .isian-row button:disabled{ opacity:.4; }
+
+  /* ---------- Pembahasan ---------- */
+  .pembahasan{ margin-top: 22px; padding-top:22px; border-top:1px dashed var(--line); }
+  .hasil-tag{
+    display:inline-flex; align-items:center; gap:8px;
+    font-weight:600; font-size:15px; margin-bottom: 12px;
+  }
+  .hasil-tag.benar{ color: var(--green); }
+  .hasil-tag.salah{ color: var(--red); }
+  .jawaban-row{ font-size: 14px; color: var(--muted); margin-bottom: 4px; }
+  .jawaban-row b{ color: var(--text); font-weight:600; }
+  .pembahasan-box{
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-top: 12px;
+    font-size: 14.5px;
+    line-height:1.6;
+    color: var(--text);
+  }
+  .pembahasan-box .lbl{ color: var(--gold); font-size: 12px; display:block; margin-bottom:6px; }
+
+  /* ---------- Hasil akhir ---------- */
+  .skor-hero{ text-align:center; padding: 8px 0 26px; border-bottom:1px solid var(--line); margin-bottom:22px; }
+  .skor-hero .num{ font-size: 58px; color: var(--gold); line-height:1; }
+  .skor-hero .num span{ font-size: 26px; color: var(--muted); }
+  .skor-hero .pct{ color: var(--muted); margin-top:6px; font-size:14px; }
+  .breakdown{ display:grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 26px; }
+  .bd-cell{ background: var(--panel-light); border-radius:8px; padding:14px; text-align:center; }
+  .bd-cell .num{ font-size:22px; }
+  .bd-cell .lbl{ font-size:12px; color:var(--muted); margin-top:3px; }
+  .bd-cell.benar .num{ color:var(--green); }
+  .bd-cell.salah .num{ color:var(--red); }
+  .bd-cell.terlewat .num{ color:var(--muted); }
+  .kategori-summary{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:26px; }
+  .ks-cell{ border:1px solid var(--line); border-radius:8px; padding:14px 16px; }
+  .ks-cell .judul{ font-size:13px; color:var(--muted); margin-bottom:8px; }
+  .ks-cell .angka{ font-size:20px; }
+
+  table.rekap{ width:100%; border-collapse:collapse; font-size:13.5px; margin-bottom:24px; }
+  table.rekap th, table.rekap td{ text-align:left; padding:9px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  table.rekap th{ color:var(--muted); font-weight:600; font-size:12px; }
+  table.rekap td.status{ white-space:nowrap; }
+  .status-benar{ color: var(--green); font-weight:600; }
+  .status-salah{ color: var(--red); font-weight:600; }
+  .status-lewat{ color: var(--muted); font-weight:600; }
+  .aksi-akhir{ display:flex; gap:10px; }
+  .aksi-akhir button{ flex:1; }
+
+  .dev-credit{
+    text-align:center;
+    color: var(--muted);
+    font-size: 12.5px;
+    margin-top: 16px;
+    letter-spacing:0.01em;
+  }
+
+  @media print{
+    html,body{ height:auto; overflow:visible; }
+    body{ background:#fff; color:#000; display:block; }
+    .viewport-frame{ display:block !important; width:auto; height:auto; padding:0; background:#fff; overflow:visible; }
+    .stage{ max-width:none; max-height:none; overflow:visible; }
+    .rotate-overlay{ display:none !important; }
+    .no-print{ display:none !important; }
+    .panel{ border:none; padding:0; }
+    table.rekap th, table.rekap td{ border-bottom:1px solid #ccc; }
+  }
+</style>
+</head>
+<body>
+<div class="rotate-overlay">
+  <div class="icon">🔄</div>
+  <h2>Putar perangkat ke mode potret</h2>
+  <p>Aplikasi ini dirancang tampil penuh dalam orientasi potret (tegak/vertikal, 9:16) agar tampilan optimal di semua tipe HP Android maupun iPhone.</p>
+</div>
+<div class="viewport-frame">
+  <div class="stage">
+    <div id="app"></div>
+    <div class="dev-credit">Dikembangkan oleh Susilawati Firman</div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   DATA SOAL — 30 soal, total 100 poin
+   Mudah = 2 poin, Sedang = 3 poin, Sulit = 5 poin
+   15 soal Logika & Teka-Teki, 15 soal Aplikasi Sehari-hari
+   ========================================================= */
+const QUESTIONS = [
+  { kategori:'logika', tingkat:'Mudah', poin:2, tipe:'pg',
+    soal:'Lanjutkan pola barisan berikut: 2, 4, 6, 8, ...',
+    opsi:['9','10','11','12'], kunci:'10',
+    pembahasan:'Barisan ini bertambah 2 setiap suku (beda tetap = 2), sehingga suku berikutnya adalah 8 + 2 = 10.' },
+
+  { kategori:'aplikasi', tingkat:'Mudah', poin:2, tipe:'isian',
+    soal:'Sebuah baju berharga Rp150.000 mendapat diskon 20%. Berapa harga baju tersebut setelah diskon (dalam Rupiah, tanpa titik)?',
+    kunci:['120000'],
+    pembahasan:'Harga setelah diskon = 150.000 × (100% − 20%) = 150.000 × 0,8 = Rp120.000.' },
+
+  { kategori:'logika', tingkat:'Mudah', poin:2, tipe:'pg',
+    soal:'Jika hari ini Senin, maka 100 hari lagi jatuh pada hari apa?',
+    opsi:['Selasa','Rabu','Kamis','Jumat'], kunci:'Rabu',
+    pembahasan:'1 minggu = 7 hari. 100 ÷ 7 = 14 sisa 2, artinya 14 minggu penuh ditambah 2 hari setelah Senin, yaitu Rabu.' },
+
+  { kategori:'aplikasi', tingkat:'Mudah', poin:2, tipe:'pg',
+    soal:'Skala sebuah peta adalah 1 : 100.000. Jarak dua kota pada peta adalah 4 cm. Berapa jarak sebenarnya kedua kota tersebut?',
+    opsi:['2 km','4 km','40 km','400 km'], kunci:'4 km',
+    pembahasan:'Jarak sebenarnya = jarak peta × skala = 4 cm × 100.000 = 400.000 cm = 4.000 m = 4 km.' },
+
+  { kategori:'logika', tingkat:'Mudah', poin:2, tipe:'pg',
+    soal:'Manakah bilangan yang tidak sekelompok dengan bilangan-bilangan lain: 3, 5, 7, 9, 10?',
+    opsi:['3','5','9','10'], kunci:'10',
+    pembahasan:'3, 5, 7, dan 9 adalah bilangan ganjil, sedangkan 10 adalah bilangan genap sehingga tidak sekelompok dengan yang lain.' },
+
+  { kategori:'aplikasi', tingkat:'Mudah', poin:2, tipe:'isian',
+    soal:'Sebuah toko menjual barang seharga Rp80.000 dan mendapat untung 25% dari harga beli. Berapa harga beli barang tersebut (dalam Rupiah, tanpa titik)?',
+    kunci:['64000'],
+    pembahasan:'Harga beli × 1,25 = 80.000, sehingga harga beli = 80.000 ÷ 1,25 = Rp64.000.' },
+
+  { kategori:'logika', tingkat:'Mudah', poin:2, tipe:'isian',
+    soal:"Jika A=1, B=2, C=3, dan seterusnya sesuai urutan abjad, berapa jumlah nilai huruf pada kata 'CAB'?",
+    kunci:['6'],
+    pembahasan:'C = 3, A = 1, B = 2. Jumlahnya = 3 + 1 + 2 = 6.' },
+
+  { kategori:'aplikasi', tingkat:'Mudah', poin:2, tipe:'pg',
+    soal:'Dalam sebuah kelas terdapat 10 siswa laki-laki dan 15 siswa perempuan. Jika dipilih satu siswa secara acak, berapa peluang terpilihnya siswa perempuan?',
+    opsi:['2/5','3/5','1/2','3/4'], kunci:'3/5',
+    pembahasan:'Peluang = banyak siswa perempuan ÷ total siswa = 15/25 = 3/5.' },
+
+  { kategori:'logika', tingkat:'Mudah', poin:2, tipe:'pg',
+    soal:'Lanjutkan barisan Fibonacci berikut: 1, 1, 2, 3, 5, 8, ...',
+    opsi:['11','12','13','14'], kunci:'13',
+    pembahasan:'Setiap suku pada barisan Fibonacci adalah jumlah dua suku sebelumnya: 5 + 8 = 13.' },
+
+  { kategori:'aplikasi', tingkat:'Mudah', poin:2, tipe:'isian',
+    soal:'Data nilai ulangan lima siswa: 6, 7, 8, 7, 9. Berapa nilai rata-rata (mean)-nya?',
+    kunci:['7.4','7,4'],
+    pembahasan:'Rata-rata = (6+7+8+7+9) ÷ 5 = 37 ÷ 5 = 7,4.' },
+
+  { kategori:'logika', tingkat:'Sedang', poin:3, tipe:'isian',
+    soal:'Perhatikan pola barisan berikut: 3, 6, 11, 18, 27, .... Berapa suku berikutnya?',
+    kunci:['38'],
+    pembahasan:'Selisih antar suku adalah 3, 5, 7, 9, 11 (naik 2 setiap kali). Maka suku berikutnya = 27 + 11 = 38.' },
+
+  { kategori:'aplikasi', tingkat:'Sedang', poin:3, tipe:'pg',
+    soal:'Sebuah barang berharga Rp200.000 mendapat diskon bertingkat 20% + 10%. Berapa harga akhir barang tersebut?',
+    opsi:['Rp140.000','Rp144.000','Rp150.000','Rp160.000'], kunci:'Rp144.000',
+    pembahasan:'Diskon pertama: 200.000 × 80% = 160.000. Diskon kedua: 160.000 × 90% = 144.000.' },
+
+  { kategori:'logika', tingkat:'Sedang', poin:3, tipe:'pg',
+    soal:'Dalam sebuah pertemuan terdapat 5 orang. Jika setiap orang berjabat tangan tepat satu kali dengan setiap orang lainnya, berapa total jabat tangan yang terjadi?',
+    opsi:['5','10','15','20'], kunci:'10',
+    pembahasan:'Banyak jabat tangan = kombinasi 2 dari 5 orang = C(5,2) = (5×4)/2 = 10.' },
+
+  { kategori:'aplikasi', tingkat:'Sedang', poin:3, tipe:'isian',
+    soal:'Resep kue membutuhkan 250 gram tepung untuk membuat 20 buah kue. Berapa gram tepung dibutuhkan untuk membuat 50 buah kue?',
+    kunci:['625'],
+    pembahasan:'Tepung per kue = 250 ÷ 20 = 12,5 gram. Untuk 50 kue = 12,5 × 50 = 625 gram.' },
+
+  { kategori:'logika', tingkat:'Sedang', poin:3, tipe:'isian',
+    soal:"Dengan A=1, B=2, ..., Z=26, kode angka '4-9-14-15' mewakili sebuah kata dalam bahasa Inggris. Tuliskan kata tersebut!",
+    kunci:['DINO','dino'],
+    pembahasan:'4=D, 9=I, 14=N, 15=O, sehingga kode tersebut membentuk kata DINO.' },
+
+  { kategori:'aplikasi', tingkat:'Sedang', poin:3, tipe:'pg',
+    soal:'Sebuah kantong berisi 4 bola merah dan 6 bola biru. Diambil satu bola secara acak. Berapa peluang terambilnya bola merah?',
+    opsi:['1/5','2/5','1/2','3/5'], kunci:'2/5',
+    pembahasan:'Peluang = banyak bola merah ÷ total bola = 4/10 = 2/5.' },
+
+  { kategori:'logika', tingkat:'Sedang', poin:3, tipe:'pg',
+    soal:'Ani lebih tua dari Budi. Budi lebih muda dari Citra. Citra bukan yang termuda di antara ketiganya. Siapakah yang termuda?',
+    opsi:['Ani','Budi','Citra','Tidak dapat ditentukan'], kunci:'Budi',
+    pembahasan:"Budi lebih muda dari Ani maupun Citra, sehingga Budi pasti yang termuda. Pernyataan 'Citra bukan yang termuda' konsisten karena yang termuda adalah Budi." },
+
+  { kategori:'aplikasi', tingkat:'Sedang', poin:3, tipe:'isian',
+    soal:'Data nilai: 12, 15, 11, 18, 14, 20, 13. Berapa nilai median dari data tersebut?',
+    kunci:['14'],
+    pembahasan:'Urutkan data: 11, 12, 13, 14, 15, 18, 20. Karena banyak data ganjil (7), median adalah data ke-4, yaitu 14.' },
+
+  { kategori:'logika', tingkat:'Sedang', poin:3, tipe:'pg',
+    soal:'Jika 3 ekor kucing menangkap 3 ekor tikus dalam waktu 3 menit, berapa menit dibutuhkan 100 ekor kucing untuk menangkap 100 ekor tikus (kecepatan setiap kucing sama)?',
+    opsi:['3 menit','33 menit','100 menit','1 menit'], kunci:'3 menit',
+    pembahasan:'Setiap kucing menangkap 1 tikus dalam 3 menit. Karena jumlah kucing dan tikus bertambah dengan rasio yang sama, waktu yang dibutuhkan tetap 3 menit.' },
+
+  { kategori:'aplikasi', tingkat:'Sedang', poin:3, tipe:'pg',
+    soal:'Seorang pedagang membeli barang seharga Rp500.000 dan menjualnya seharga Rp650.000. Berapa persentase keuntungan pedagang tersebut?',
+    opsi:['20%','25%','30%','35%'], kunci:'30%',
+    pembahasan:'Untung = 650.000 − 500.000 = 150.000. Persentase untung = 150.000/500.000 × 100% = 30%.' },
+
+  { kategori:'logika', tingkat:'Sulit', poin:5, tipe:'isian',
+    soal:'Lanjutkan pola bilangan kubik berikut: 8, 27, 64, 125, ....',
+    kunci:['216'],
+    pembahasan:'Pola ini adalah barisan bilangan kubik: 2³=8, 3³=27, 4³=64, 5³=125, maka suku berikutnya adalah 6³ = 216.' },
+
+  { kategori:'aplikasi', tingkat:'Sulit', poin:5, tipe:'isian',
+    soal:'Harga sebuah sepatu setelah didiskon 25% adalah Rp300.000. Berapa harga awal sepatu tersebut sebelum diskon (dalam Rupiah, tanpa titik)?',
+    kunci:['400000'],
+    pembahasan:'Harga awal × 75% = 300.000, sehingga harga awal = 300.000 ÷ 0,75 = Rp400.000.' },
+
+  { kategori:'logika', tingkat:'Sulit', poin:5, tipe:'isian',
+    soal:'Perhatikan barisan berikut, setiap suku merupakan jumlah dua suku sebelumnya dikurangi 1: 2, 3, 4, 6, 9, 14, .... Berapa suku ketujuh?',
+    kunci:['22'],
+    pembahasan:'Aturan barisan: Un = U(n-1) + U(n-2) − 1. Suku ke-6 = 14, suku ke-5 = 9, maka suku ke-7 = 14 + 9 − 1 = 22.' },
+
+  { kategori:'aplikasi', tingkat:'Sulit', poin:5, tipe:'isian',
+    soal:'Sebuah peta berskala 1 : 500.000. Jarak sebenarnya dua kota adalah 90 km. Berapa jarak kedua kota tersebut pada peta (dalam cm)?',
+    kunci:['18'],
+    pembahasan:'90 km = 9.000.000 cm. Jarak pada peta = 9.000.000 ÷ 500.000 = 18 cm.' },
+
+  { kategori:'logika', tingkat:'Sulit', poin:5, tipe:'pg',
+    soal:"Ada tiga kotak berlabel 'Apel', 'Jeruk', dan 'Campuran'. Semua label diketahui SALAH. Kamu hanya boleh mengambil satu buah dari satu kotak untuk memastikan isi ketiga kotak dengan benar. Kotak mana yang sebaiknya diambil?",
+    opsi:['Kotak berlabel Apel','Kotak berlabel Jeruk','Kotak berlabel Campuran','Boleh kotak mana saja'],
+    kunci:'Kotak berlabel Campuran',
+    pembahasan:"Karena semua label salah, kotak berlabel 'Campuran' pasti hanya berisi salah satu jenis buah saja (bukan campuran). Buah yang terambil menunjukkan isi asli kotak itu, sehingga isi dua kotak lainnya bisa dipastikan secara logis." },
+
+  { kategori:'aplikasi', tingkat:'Sulit', poin:5, tipe:'pg',
+    soal:'Terdapat 5 kupon bernomor 1 sampai 5. Diambil 2 kupon sekaligus secara acak. Berapa peluang kedua kupon yang terambil bernomor genap?',
+    opsi:['1/10','1/5','2/5','1/2'], kunci:'1/10',
+    pembahasan:'Bilangan genap pada kupon hanya 2 dan 4. Banyak cara memilih 2 kupon dari 5 = C(5,2) = 10. Cara memilih kedua kupon genap (2 dan 4) hanya 1 cara. Peluang = 1/10.' },
+
+  { kategori:'logika', tingkat:'Sulit', poin:5, tipe:'pg',
+    soal:"Di sebuah pulau, penduduk selalu berkata jujur (Ksatria) atau selalu berbohong (Penjahat). A berkata, 'Aku dan B adalah Penjahat.' Apa status A dan B yang benar?",
+    opsi:['A Ksatria, B Penjahat','A Penjahat, B Ksatria','Keduanya Ksatria','Keduanya Penjahat'],
+    kunci:'A Penjahat, B Ksatria',
+    pembahasan:'Jika A Ksatria (jujur), pernyataannya harus benar, artinya A adalah Penjahat — kontradiksi. Maka A pasti Penjahat, sehingga pernyataannya bohong. Karena pernyataan "Aku dan B Penjahat" salah, tidak mungkin keduanya Penjahat, sehingga B haruslah Ksatria.' },
+
+  { kategori:'aplikasi', tingkat:'Sulit', poin:5, tipe:'isian',
+    soal:'Rata-rata nilai 8 siswa adalah 75. Jika ditambahkan nilai siswa ke-9 sebesar 93, berapa rata-rata nilai kesembilan siswa tersebut?',
+    kunci:['77'],
+    pembahasan:'Jumlah nilai 8 siswa = 8 × 75 = 600. Jumlah nilai 9 siswa = 600 + 93 = 693. Rata-rata baru = 693 ÷ 9 = 77.' },
+
+  { kategori:'logika', tingkat:'Sulit', poin:5, tipe:'isian',
+    soal:"Barisan 'lihat-dan-ucapkan' berikut: 1, 11, 21, 1211, 111221, .... Berapa suku berikutnya?",
+    kunci:['312211'],
+    pembahasan:"Setiap suku dibaca dari suku sebelumnya. '111221' dibaca: tiga angka 1, dua angka 2, satu angka 1, sehingga ditulis '312211'." },
+
+  { kategori:'aplikasi', tingkat:'Sulit', poin:5, tipe:'pg',
+    soal:'Seorang pedagang menaikkan harga barang 20% dari harga asli Rp100.000, lalu memberikan diskon 20% dari harga baru saat obral. Berapa harga akhir barang tersebut?',
+    opsi:['Rp100.000 (sama seperti semula)','Rp96.000 (lebih rendah dari semula)','Rp104.000 (lebih tinggi dari semula)','Rp120.000'],
+    kunci:'Rp96.000 (lebih rendah dari semula)',
+    pembahasan:'Harga naik 20%: 100.000 × 1,2 = 120.000. Harga setelah diskon 20%: 120.000 × 0,8 = 96.000. Kenaikan dan penurunan persentase yang sama tidak saling meniadakan karena dasar hitungannya berbeda, sehingga harga akhir lebih rendah dari harga asli.' }
+];
+
+const TOTAL_POIN = QUESTIONS.reduce((a,q)=>a+q.poin,0); // = 100
+const WAKTU_PER_SOAL = 20;
+
+/* =========================================================
+   KONFIGURASI PENGIRIMAN HASIL ONLINE (Google Apps Script)
+   1. Deploy backend "Code.gs" sebagai Web App (lihat panduan
+      terpisah yang disertakan bersama file ini).
+   2. Tempel URL Web App hasil deploy di bawah ini, di antara
+      tanda kutip, menggantikan teks GANTI_DENGAN_URL_WEB_APP.
+   3. Setelah diisi, hasil siswa dari HP mana pun akan otomatis
+      tersimpan ke Google Sheet dan bisa dibuka guru dari
+      perangkat lain (laptop, HP lain, dsb).
+   ========================================================= */
+const GOOGLE_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz-P1mUOpgh4fo19zDMIRnGRCpyyDc-YO0teQAzIa5Nn0IdlXVtl6p5Iqmtjny55vyq/exec";
+
+/* =========================================================
+   MODE LAYAR PENUH (Fullscreen) — wajib dipicu oleh aksi
+   pengguna (klik tombol), berlaku di sebagian besar Android
+   & iPhone versi baru. Jika browser tidak mendukung, aplikasi
+   tetap berjalan normal di layar penuh browser biasa.
+   ========================================================= */
+function mintaLayarPenuh(){
+  const el = document.documentElement;
+  const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+  if(req){
+    try{ req.call(el).catch(()=>{}); }catch(e){ /* diabaikan jika ditolak/tidak didukung */ }
+  }
+}
+
+/* =========================================================
+   STATE
+   ========================================================= */
+let state = {
+  nama: '',
+  idx: 0,
+  skor: 0,
+  jawaban: [], // {userAnswer, benar, poin, timeout}
+  sisaWaktu: WAKTU_PER_SOAL,
+  timerHandle: null,
+  terkunci: false
+};
+
+const app = document.getElementById('app');
+
+/* =========================================================
+   UTIL
+   ========================================================= */
+function normalize(s){
+  return (s||'').toString().toLowerCase().replace(/rp/g,'').replace(/[.\s,%]/g,'').trim();
+}
+function cekJawabanBenar(q, jawaban){
+  if(q.tipe === 'pg'){
+    return jawaban === q.kunci;
+  }else{
+    const n = normalize(jawaban);
+    return q.kunci.some(k => normalize(k) === n);
+  }
+}
+function labelKategori(k){ return k === 'logika' ? 'Logika & Teka-Teki' : 'Aplikasi Sehari-hari'; }
+function labelKunciTampil(q){
+  return q.tipe === 'pg' ? q.kunci : q.kunci[0];
+}
+
+/* =========================================================
+   AUDIO (Web Audio API, tanpa file eksternal)
+   ========================================================= */
+let actx = null;
+function getCtx(){
+  if(!actx){ actx = new (window.AudioContext || window.webkitAudioContext)(); }
+  return actx;
+}
+function beep(freq, dur, vol, type){
+  try{
+    const ctx = getCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.value = freq;
+    gain.gain.value = vol || 0.05;
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+    osc.stop(ctx.currentTime + dur);
+  }catch(e){ /* audio tidak tersedia, abaikan */ }
+}
+function bunyiTick(){ beep(880, 0.09, 0.06, 'square'); }
+function bunyiBenar(){ beep(660, 0.12, 0.07, 'sine'); setTimeout(()=>beep(990,0.15,0.07,'sine'),110); }
+function bunyiSalah(){ beep(180, 0.28, 0.08, 'sawtooth'); }
+function bunyiHabis(){ beep(140, 0.4, 0.09, 'square'); }
+
+/* =========================================================
+   KIRIM HASIL KE GOOGLE SHEET — bisa dari perangkat mana pun
+   Mendukung dua cara (dipilih otomatis):
+   1) Jika file ini dibuka LANGSUNG dari dalam Apps Script
+      HtmlService → pakai google.script.run (paling cepat).
+   2) Jika file ini di-hosting sebagai HTML biasa (GitHub Pages,
+      Google Sites, dibuka dari HP mana pun, dsb) → kirim via
+      fetch() ke URL Web App Apps Script yang sudah dideploy
+      (lihat GOOGLE_SHEET_WEBAPP_URL di atas). Ini yang membuat
+      aplikasi benar-benar "full online" lintas perangkat.
+   Jika belum ada backend yang diisi/di-deploy, hasil tetap
+   tersimpan sementara di localStorage HP tersebut sebagai
+   cadangan, dan bisa dicoba kirim ulang.
+   ========================================================= */
+function simpanCadanganLokal(payload){
+  try{
+    const kunci = 'rangking1-hasil-belum-terkirim';
+    const daftar = JSON.parse(localStorage.getItem(kunci) || '[]');
+    daftar.push(payload);
+    localStorage.setItem(kunci, JSON.stringify(daftar));
+  }catch(e){ /* diabaikan jika localStorage tidak tersedia */ }
+}
+
+function kirimKeSheet(payload){
+  const statusEl = document.getElementById('kirim-status');
+  const urlSiap = GOOGLE_SHEET_WEBAPP_URL && GOOGLE_SHEET_WEBAPP_URL.indexOf('GANTI_DENGAN') === -1;
+
+  if(typeof google !== 'undefined' && google.script && google.script.run){
+    // Mode 1: dibuka dari dalam Apps Script HtmlService
+    if(statusEl) statusEl.textContent = 'Mengirim hasil ke guru…';
+    google.script.run
+      .withSuccessHandler(()=>{ if(statusEl) statusEl.textContent = '✅ Hasil tersimpan online — guru dapat memeriksanya dari perangkat mana pun.'; })
+      .withFailureHandler(()=>{ simpanCadanganLokal(payload); if(statusEl) statusEl.textContent = '⚠️ Gagal mengirim otomatis. Hasil disimpan sementara di HP ini.'; })
+      .simpanHasil(payload);
+  }else if(urlSiap){
+    // Mode 2: hosting biasa (bisa dibuka dari HP/laptop mana pun) → kirim via fetch
+    if(statusEl) statusEl.textContent = 'Mengirim hasil ke guru…';
+    fetch(GOOGLE_SHEET_WEBAPP_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    }).then(()=>{
+      if(statusEl) statusEl.textContent = '✅ Hasil terkirim online — guru dapat memeriksanya dari perangkat mana pun.';
+    }).catch(()=>{
+      simpanCadanganLokal(payload);
+      if(statusEl) statusEl.textContent = '⚠️ Koneksi gagal. Hasil disimpan sementara di HP ini — coba lagi saat ada internet.';
+    });
+  }else{
+    // Belum dikonfigurasi sama sekali
+    simpanCadanganLokal(payload);
+    if(statusEl) statusEl.textContent = 'ℹ️ Mode lokal: isi GOOGLE_SHEET_WEBAPP_URL (lihat panduan) agar hasil otomatis tersimpan online untuk guru.';
+  }
+}
+
+
+/* =========================================================
+   RENDER: START SCREEN
+   ========================================================= */
+function renderStart(){
+  app.innerHTML = `
+    <div class="panel">
+      <div class="start-eyebrow">Simulasi Lomba Cerdas Cermat</div>
+      <h1 class="start-title">Rangking 1: Arena Matematika</h1>
+      <p class="start-desc">30 soal penalaran logika dan matematika terapan sehari-hari, dengan waktu 20 detik untuk tiap soal. Jawab secepat dan setepat mungkin — pembahasan lengkap akan tampil setelah setiap soal.</p>
+      <div class="rule-grid">
+        <div class="rule-cell"><span class="num">30</span><span class="lbl">soal total</span></div>
+        <div class="rule-cell"><span class="num">20 dtk</span><span class="lbl">per soal</span></div>
+        <div class="rule-cell"><span class="num">100</span><span class="lbl">poin maksimal</span></div>
+      </div>
+      <label class="field-label" for="nama-input">Nama peserta</label>
+      <input type="text" id="nama-input" placeholder="Tulis nama kamu di sini" maxlength="40" />
+      <button class="btn-primary" id="mulai-btn" disabled>Mulai Lomba</button>
+      <div class="fs-hint">📱 Pengguna iPhone: untuk layar benar-benar penuh tanpa bilah alamat Safari, tambahkan halaman ini ke Layar Utama lalu buka dari ikonnya.</div>
+    </div>
+  `;
+  const input = document.getElementById('nama-input');
+  const btn = document.getElementById('mulai-btn');
+  input.addEventListener('input', ()=>{ btn.disabled = input.value.trim().length === 0; });
+  input.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' && !btn.disabled) mulaiLomba(); });
+  btn.addEventListener('click', mulaiLomba);
+  function mulaiLomba(){
+    mintaLayarPenuh();
+    state = { nama: input.value.trim(), idx:0, skor:0, jawaban:[], sisaWaktu:WAKTU_PER_SOAL, timerHandle:null, terkunci:false };
+    renderSoal();
+  }
+}
+
+/* =========================================================
+   RENDER: TRACK (dot progres)
+   ========================================================= */
+function renderTrack(){
+  let html = '<div class="track">';
+  for(let i=0;i<QUESTIONS.length;i++){
+    if(i < state.jawaban.length){
+      html += `<i class="${state.jawaban[i].benar ? 'done-correct' : 'done-wrong'}"></i>`;
+    }else if(i === state.idx){
+      html += '<i class="current"></i>';
+    }else{
+      html += '<i></i>';
+    }
+  }
+  html += '</div>';
+  return html;
+}
+
+/* =========================================================
+   RENDER: SOAL
+   ========================================================= */
+function renderSoal(){
+  state.terkunci = false;
+  state.sisaWaktu = WAKTU_PER_SOAL;
+  const q = QUESTIONS[state.idx];
+
+  let opsiHtml = '';
+  if(q.tipe === 'pg'){
+    opsiHtml = '<div class="opsi-grid" id="opsi-grid">' + q.opsi.map((o,i)=>
+      `<button class="opsi-btn" data-opsi="${i}" onclick="pilihOpsi(${i})">${o}</button>`
+    ).join('') + '</div>';
+  }else{
+    opsiHtml = `
+      <div class="isian-row">
+        <input type="text" id="isian-input" placeholder="Ketik jawabanmu di sini" autocomplete="off" />
+        <button id="isian-submit" onclick="kirimIsian()">Kirim</button>
+      </div>`;
+  }
+
+  app.innerHTML = `
+    <div class="panel">
+      <div class="quiz-top">
+        <div class="quiz-meta">
+          <div class="peserta">${escapeHtml(state.nama)}</div>
+          <div class="posisi num">Soal ${state.idx+1} dari ${QUESTIONS.length}</div>
+        </div>
+        <div class="score-box">
+          <div class="num">${state.skor}<span style="font-size:14px;color:var(--muted)">/${TOTAL_POIN}</span></div>
+          <div class="lbl">skor sementara</div>
+        </div>
+      </div>
+      ${renderTrack()}
+      <span class="badge ${q.kategori}">${labelKategori(q.kategori)} · ${q.tingkat} · ${q.poin} poin</span>
+      <div class="timer-wrap">
+        <div class="timer-ring" id="timer-ring">
+          <svg width="92" height="92">
+            <circle class="bg" cx="46" cy="46" r="40"></circle>
+            <circle class="fg" id="timer-fg" cx="46" cy="46" r="40"
+              stroke-dasharray="251.2" stroke-dashoffset="0"></circle>
+          </svg>
+          <div class="timer-num num" id="timer-num">20</div>
+        </div>
+      </div>
+      <div class="soal-text">${escapeHtml(q.soal)}</div>
+      ${opsiHtml}
+      <div id="pembahasan-slot"></div>
+    </div>
+  `;
+
+  if(q.tipe === 'isian'){
+    const inp = document.getElementById('isian-input');
+    inp.focus();
+    inp.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') kirimIsian(); });
+  }
+
+  jalankanTimer();
+}
+
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.innerText = s;
+  return d.innerHTML;
+}
+
+/* =========================================================
+   TIMER
+   ========================================================= */
+function jalankanTimer(){
+  const CIRC = 251.2;
+  const ring = document.getElementById('timer-ring');
+  const fg = document.getElementById('timer-fg');
+  const num = document.getElementById('timer-num');
+
+  clearInterval(state.timerHandle);
+  let waktu = WAKTU_PER_SOAL * 10; // dalam persepuluh detik untuk animasi halus
+
+  state.timerHandle = setInterval(()=>{
+    waktu -= 1;
+    const detikBulat = Math.ceil(waktu/10);
+    num.textContent = detikBulat;
+    const frac = waktu / (WAKTU_PER_SOAL*10);
+    fg.setAttribute('stroke-dashoffset', (CIRC * (1-frac)).toFixed(1));
+
+    ring.classList.remove('warn','danger');
+    if(detikBulat <= 5 && detikBulat > 3){ ring.classList.add('warn'); }
+    if(detikBulat <= 3){
+      ring.classList.add('danger');
+      if(waktu % 10 === 0 && waktu > 0) bunyiTick();
+    }
+
+    if(waktu <= 0){
+      clearInterval(state.timerHandle);
+      bunyiHabis();
+      kunciDanProses(null, true);
+    }
+  }, 100);
+}
+
+/* =========================================================
+   INTERAKSI JAWABAN
+   ========================================================= */
+function pilihOpsi(i){
+  if(state.terkunci) return;
+  const q = QUESTIONS[state.idx];
+  kunciDanProses(q.opsi[i], false);
+}
+function kirimIsian(){
+  if(state.terkunci) return;
+  const inp = document.getElementById('isian-input');
+  const val = inp.value.trim();
+  if(val.length === 0) return;
+  kunciDanProses(val, false);
+}
+
+function kunciDanProses(jawabanUser, timeout){
+  if(state.terkunci) return;
+  state.terkunci = true;
+  clearInterval(state.timerHandle);
+
+  const q = QUESTIONS[state.idx];
+  const benar = !timeout && cekJawabanBenar(q, jawabanUser);
+  const poinDapat = benar ? q.poin : 0;
+  state.skor += poinDapat;
+  state.jawaban.push({ userAnswer: timeout ? null : jawabanUser, benar, poin: poinDapat, timeout });
+
+  if(benar) bunyiBenar(); else if(!timeout) bunyiSalah();
+
+  // Tandai visual opsi (khusus PG)
+  if(q.tipe === 'pg'){
+    const tombol = document.querySelectorAll('#opsi-grid .opsi-btn');
+    tombol.forEach(btn=>{
+      btn.disabled = true;
+      const teks = btn.textContent;
+      if(teks === q.kunci) btn.classList.add('kunci-terlewat');
+      if(!timeout && teks === jawabanUser && !benar) btn.classList.add('pilih-salah');
+      if(!timeout && teks === jawabanUser && benar) btn.classList.add('pilih-benar');
+    });
+  }else{
+    document.getElementById('isian-input').disabled = true;
+    document.getElementById('isian-submit').disabled = true;
+  }
+
+  // Update skor sementara di header
+  const scoreNum = document.querySelector('.score-box .num');
+  if(scoreNum) scoreNum.innerHTML = `${state.skor}<span style="font-size:14px;color:var(--muted)">/${TOTAL_POIN}</span>`;
+
+  tampilkanPembahasan(q, jawabanUser, benar, poinDapat, timeout);
+}
+
+function tampilkanPembahasan(q, jawabanUser, benar, poinDapat, timeout){
+  const slot = document.getElementById('pembahasan-slot');
+  const labelJawaban = timeout ? 'Waktu habis (tidak menjawab)' : jawabanUser;
+  slot.innerHTML = `
+    <div class="pembahasan">
+      <div class="hasil-tag ${benar ? 'benar' : 'salah'}">${benar ? '✅ Jawaban benar' : (timeout ? '⏱️ Waktu habis' : '❌ Jawaban salah')} · +${poinDapat} poin</div>
+      <div class="jawaban-row">Jawabanmu: <b>${escapeHtml(labelJawaban)}</b></div>
+      <div class="jawaban-row">Kunci jawaban: <b>${escapeHtml(labelKunciTampil(q))}</b></div>
+      <div class="pembahasan-box">
+        <span class="lbl">Pembahasan</span>
+        ${escapeHtml(q.pembahasan)}
+      </div>
+      <button class="btn-primary" onclick="soalBerikutnya()">${state.idx+1 < QUESTIONS.length ? 'Lanjut ke Soal Berikutnya' : 'Lihat Hasil Akhir'}</button>
+    </div>
+  `;
+}
+
+function soalBerikutnya(){
+  state.idx += 1;
+  if(state.idx >= QUESTIONS.length){
+    renderHasil();
+  }else{
+    renderSoal();
+  }
+}
+
+/* =========================================================
+   RENDER: HASIL AKHIR
+   ========================================================= */
+function renderHasil(){
+  const jumlahBenar = state.jawaban.filter(j=>j.benar).length;
+  const jumlahTimeout = state.jawaban.filter(j=>j.timeout).length;
+  const jumlahSalah = state.jawaban.length - jumlahBenar - jumlahTimeout;
+  const persen = ((state.skor / TOTAL_POIN) * 100).toFixed(1);
+
+  const kategoriRingkas = {};
+  ['logika','aplikasi'].forEach(k=>{
+    const idxKat = QUESTIONS.map((q,i)=>({q,i})).filter(x=>x.q.kategori===k).map(x=>x.i);
+    const benarKat = idxKat.filter(i=>state.jawaban[i].benar).length;
+    const poinKat = idxKat.reduce((a,i)=>a+state.jawaban[i].poin,0);
+    const poinMaksKat = idxKat.reduce((a,i)=>a+QUESTIONS[i].poin,0);
+    kategoriRingkas[k] = { benar: benarKat, total: idxKat.length, poin: poinKat, poinMaks: poinMaksKat };
+  });
+
+  const barisTabel = QUESTIONS.map((q,i)=>{
+    const j = state.jawaban[i];
+    const statusHtml = j.timeout ? '<span class="status-lewat">⏱️ Lewat</span>' : (j.benar ? '<span class="status-benar">✅ Benar</span>' : '<span class="status-salah">❌ Salah</span>');
+    const jawabTampil = j.timeout ? '—' : escapeHtml(j.userAnswer);
+    return `<tr>
+      <td>${i+1}</td>
+      <td>${labelKategori(q.kategori)}</td>
+      <td class="status">${statusHtml}</td>
+      <td>${jawabTampil}</td>
+      <td>${escapeHtml(labelKunciTampil(q))}</td>
+      <td>${j.poin}/${q.poin}</td>
+    </tr>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="panel">
+      <div class="skor-hero">
+        <div style="color:var(--muted);font-size:14px;margin-bottom:8px;">${escapeHtml(state.nama)} · hasil akhir</div>
+        <div class="num">${state.skor}<span> / ${TOTAL_POIN}</span></div>
+        <div class="pct">${persen}% terjawab benar secara poin</div>
+      </div>
+      <div class="breakdown">
+        <div class="bd-cell benar"><div class="num">${jumlahBenar}</div><div class="lbl">Benar</div></div>
+        <div class="bd-cell salah"><div class="num">${jumlahSalah}</div><div class="lbl">Salah</div></div>
+        <div class="bd-cell terlewat"><div class="num">${jumlahTimeout}</div><div class="lbl">Waktu habis</div></div>
+      </div>
+      <div class="kategori-summary">
+        <div class="ks-cell">
+          <div class="judul">Logika &amp; Teka-Teki</div>
+          <div class="angka">${kategoriRingkas.logika.benar}/${kategoriRingkas.logika.total} benar · ${kategoriRingkas.logika.poin}/${kategoriRingkas.logika.poinMaks} poin</div>
+        </div>
+        <div class="ks-cell">
+          <div class="judul">Aplikasi Sehari-hari</div>
+          <div class="angka">${kategoriRingkas.aplikasi.benar}/${kategoriRingkas.aplikasi.total} benar · ${kategoriRingkas.aplikasi.poin}/${kategoriRingkas.aplikasi.poinMaks} poin</div>
+        </div>
+      </div>
+      <h3 style="margin-bottom:12px;font-size:16px;">Rekap Pengerjaan 30 Soal</h3>
+      <table class="rekap">
+        <thead><tr><th>No</th><th>Kategori</th><th>Status</th><th>Jawabanmu</th><th>Kunci</th><th>Poin</th></tr></thead>
+        <tbody>${barisTabel}</tbody>
+      </table>
+      <div class="aksi-akhir no-print">
+        <button class="btn-secondary" onclick="renderStart()">Ulangi Lomba</button>
+        <button class="btn-primary" style="margin-top:0" onclick="window.print()">Cetak Hasil</button>
+      </div>
+      <div id="kirim-status" style="text-align:center;color:var(--muted);font-size:12.5px;margin-top:12px;"></div>
+    </div>
+  `;
+
+  kirimKeSheet({
+    nama: state.nama,
+    skor: state.skor,
+    totalPoin: TOTAL_POIN,
+    benar: jumlahBenar,
+    salah: jumlahSalah,
+    timeout: jumlahTimeout,
+    waktuSelesai: new Date().toISOString(),
+    detail: QUESTIONS.map((q,i)=>({
+      no: i+1,
+      kategori: labelKategori(q.kategori),
+      tingkat: q.tingkat,
+      status: state.jawaban[i].timeout ? 'Waktu habis' : (state.jawaban[i].benar ? 'Benar' : 'Salah'),
+      jawaban: state.jawaban[i].timeout ? '' : state.jawaban[i].userAnswer,
+      kunci: labelKunciTampil(q),
+      poin: state.jawaban[i].poin,
+      poinMaksimal: q.poin
+    }))
+  });
+}
+
+/* =========================================================
+   MULAI
+   ========================================================= */
+renderStart();
+</script>
+</body>
+</html>
